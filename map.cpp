@@ -44,7 +44,16 @@ void showMap(char map[ROW][COLUMN]){
 */
 
 void showMap(char map[ROW][COLUMN]){ // Diseño usando codigo colores codigo ANSI, recomendado por claude usar esta libreria 
+     // Título
+    std::cout << "\033[36m";  // color cian
+    std::cout << "╔═════════════════════════════════╗\n";
+    std::cout << "║       PARQUEADERO CENTRAL       ║\n";
+    std::cout << "╠═════════════════════════════════╣\n";
+    std::cout << "\033[0m";
+
+    // Mapa con colores
     for (int i = 0; i < ROW; i++){
+        std::cout << "\033[36m║\033[0m ";  // borde izquierdo antes del for de columnas
         for(int j = 0; j < COLUMN; j++){
             if (map[i][j] == SPOT_FREE) {
                 std::cout << "\033[32m" << map[i][j] << "\033[0m ";  // verde, espacio libre (P)
@@ -58,9 +67,23 @@ void showMap(char map[ROW][COLUMN]){ // Diseño usando codigo colores codigo ANS
                 std::cout << "\033[37m" << map[i][j] << "\033[0m ";  // blanco (muros)
             }
         }
-        std::cout << "\n";
+        std::cout << "\033[36m║\033[0m\n";  // borde derecho después del for de columnas
+
     }
+    // Leyenda (FUERA del for)
+    std::cout << "\033[36m╚═════════════════════════════════╝\033[0m\n";
+    std::cout << "\033[36m\033[0m ";
+    std::cout << "\033[32mP\033[0m=Libre ";
+    std::cout << "\033[31mX\033[0m=Ocupado \n";
+    std::cout << "\033[36mE\033[0m=Entrada ";
+    std::cout << "\033[36mS\033[0m=Salida ";
+    std::cout << "\033[36m\033[0m\n";
+    std::cout<<"\n";
+
 }
+
+
+
 
 void updateMap(char map[ROW][COLUMN], std::vector<Spot>&spots){
     for(int i =0; i<spots.size();i++){
