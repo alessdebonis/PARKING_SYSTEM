@@ -4,25 +4,25 @@
 #include <cctype>
 #include "map.h"
 
-// inicializar el espacion con valores vacio y libre.
+// inicializar un espacion individual con valores vacio y libre.
 void initSpot(Spot* s){
 
-    s->plate = "";
+    s->plate = "";// placa vacia
     s->entryTime = 0;
     s->occupied = false;
 }
 
-bool validatePlate(std::string plate){
+bool validatePlate(std::string plate){ // si no tiene 6 caracteres exactos, invalido
     if (plate.size()!= 6){
         return false;
     }
 
-    for(int i = 0; i < 3; i++){
+    for(int i = 0; i < 3; i++){ //revisa los 3 primeros caracteres, si alguno no es letra invalido
         if(!std::isalpha(plate[i])){
             return false;
         }
     }
-    for(int i = 3; i < 6; i++){
+    for(int i = 3; i < 6; i++){//revisa los 3 ultimos caracteres, si alguno no es numero invalido
         if(!std::isdigit(plate[i])){
             return false;
         }
@@ -30,38 +30,40 @@ bool validatePlate(std::string plate){
 
     return true;
 }
-void initSpots (std::vector<Spot>& spots, char map[16][16]){
-    for (int i = 0; i < ROW ; i++){
-        for(int j =0; j < COLUMN; j++){
-            if(map[i][j] == 'P'){
-            Spot space;
-            space.row = i;
-            space.col = j;
-            space.plate = "";
-            space.entryTime = 0;
-            space.occupied = false;
-            spots.push_back(space);
+void initSpots (std::vector<Spot>& spots, char map[16][16]){ // recorre todo el mapa, y crea un Spot para cada 'P' que encuentres.
+    for (int i = 0; i < ROW ; i++){ // recorrer las filas
+        for(int j =0; j < COLUMN; j++){ // recorrer las columnas
+            if(map[i][j] == 'P'){ //si la celda es un parqueadero 'P'
+            Spot space; //crea un spot nuevo
+            space.row = i; //guarda que fila esta
+            space.col = j; //guarda que columna esta
+            space.plate = "";// no hay vehiculo
+            space.entryTime = 0;//sin hora
+            space.occupied = false;// desocupado
+            spots.push_back(space); //agregar a la lista, recomendada por claude
         }
 
         }
     }
 }
 
+//buscar el primer espacio libre
 int findFreeSpot(std::vector<Spot>& spots){
-    int nospace = -1;
-    for(int i =0; i < spots.size(); i++){
-        if(spots[i].occupied == false){
-            return i;
+    int nospace = -1; // inicio variable nospace en -1, por que en la matriz no hay indice -1/
+    for(int i =0; i < spots.size(); i++){ //recorre todos los spots
+        if(spots[i].occupied == false){ // si en cuentras un espacio libre 
+            return i; //retorna cual espacio libre es
         }
     }
-    return nospace;
+    return nospace;// recorrrio todo el mapa y no encontro libre
 }
 
+// para buscar el vehiculo por su placa en el spot
 int findSpotByPlate (std::vector<Spot>& spots, std::string plate){
-    int nospace = -1;
+    int nospace = -1;// inicio variable nospace en -1, por que en la matriz no hay indice -1/
     for(int i =0; i < spots.size(); i++){
-        if(spots[i].occupied == true && spots[i].plate ==plate){
-            return i;
+        if(spots[i].occupied == true && spots[i].plate ==plate){ // si el espacio esta ocupado y la placa coincide
+            return i; //devuelve su posicion
         }
     }
     return nospace;
@@ -124,19 +126,35 @@ void registerExit(std::vector<Spot>& spots){
 // revisar el estado del espacio a ver si esta libre
 void showStatus(std::vector<Spot>& spots){
 
-    int freeSpot = 0;
-    int takenSpot = 0;
+    int freeSpot = 0; //inicio variable local
+    int takenSpot = 0; //inicio variable local
     for (int i =0; i< spots.size(); i++){
-        if (spots[i].occupied == true) {
-            takenSpot++;
+        if (spots[i].occupied == true) { //si el espacio esta ocupado
+            takenSpot++; // suma 1 a espacios ocupados
         }
         else {
-            freeSpot++;
+            freeSpot++; // suma 1 a espacios libres
         }
     }
 
     std::cout<<"Espacio Libres: "<<freeSpot<<"\n";
     std::cout<<"Espacio Ocupados: "<<takenSpot<<"\n";
-    std::cout<<"Espacios en total: "<<spots.size()<<"\n";
+    std::cout<<"Espacios en total: "<<spots.size()<<"\n"; // total espacios
    
+}
+//mostrar vehiculos registrados, para saber cual es el que debo sacar....
+void showVehicles(std::vector<Spot>& spots){ 
+    int count = 0; //inicializo una variable local en 0
+    for(int i = 0; i < spots.size(); i++){ //recorrer spots
+        if(spots[i].occupied == true){// si ese espacio esta ocupado
+            std::cout<<"Placa: " <<spots[i].plate<<"\n"; //imprime su placa
+            std::cout<<"Fila: "<<spots[i].row<<"\n"; //imprime su fila
+            std::cout<<"Columna: "<<spots[i].col<<"\n"; //imprime su columna
+            count++; // sumale uno a el conteo de vehiculos registrafos
+
+        }
+    }
+    if(count==0){
+        std::cout<<"No hay vehiculos registrados\n";
+    }
 }

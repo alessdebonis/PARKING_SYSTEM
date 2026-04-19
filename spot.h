@@ -26,6 +26,7 @@ void initSpots(std::vector<Spot>& spots, char map[16][16]);
 int findSpotByPlate(std::vector<Spot>& spots, std::string plate);
 int findFreeSpot(std::vector<Spot>& spots);
 
-
+// ver vehiculos que ya estan registrados
+void showVehicles(std::vector<Spot>& spots);
 
 #endif
