@@ -11,7 +11,9 @@ int calculateMinutes(std::time_t entry, std::time_t exit){
     return minutes;
 }
 
-int calculateFee (int minutes){
-
-    return minutes * RATE_PER_MINUTE; //calcular pago
+int calculateFee (int minutes, char type){
+    if (type == 'M'){
+        return minutes * MOTO_RATE_PER_MINUTE; //calcular pago moto
+    }
+    return minutes * CAR_RATE_PER_MINUTE; //calcular pago carros
 }

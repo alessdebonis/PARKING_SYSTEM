@@ -10,9 +10,10 @@ void initSpot(Spot* s){
     s->plate = "";// placa vacia
     s->entryTime = 0;
     s->occupied = false;
+    s->type = ' ';
 }
 
-bool validatePlate(std::string plate){ // si no tiene 6 caracteres exactos, invalido
+bool validateCarPlate(std::string plate){ // si no tiene 6 caracteres exactos, invalido
     if (plate.size()!= 6){
         return false;
     }
@@ -28,6 +29,27 @@ bool validatePlate(std::string plate){ // si no tiene 6 caracteres exactos, inva
         }
     }
 
+    return true;
+}
+bool validateMotoPlate(std::string plate){ // si no tiene 6 caracteres exactos, invalido
+    if (plate.size()!= 6){
+        return false;
+    }
+
+    for(int i = 0; i < 3; i++){ //revisa los 3 primeros caracteres, si alguno no es letra invalido
+        if(!std::isalpha(plate[i])){
+            return false;
+        }
+    }
+    for(int i = 3; i < 5; i++){//revisa los 2  caracteres, si alguno no es numero invalido
+        if(!std::isdigit(plate[i])){
+            return false;
+        }
+    }
+    
+        if(!std::isalpha(plate[5])){
+            return false;
+        }
     return true;
 }
 void initSpots (std::vector<Spot>& spots, char map[16][16]){ // recorre todo el mapa, y crea un Spot para cada 'P' que encuentres.
@@ -63,7 +85,7 @@ int findSpotByPlate (std::vector<Spot>& spots, std::string plate){
     int nospace = -1;// inicio variable nospace en -1, por que en la matriz no hay indice -1/
     for(int i =0; i < spots.size(); i++){
         if(spots[i].occupied == true && spots[i].plate ==plate){ // si el espacio esta ocupado y la placa coincide
-            return i; //devuelve su posicion
+            return i; //devuelve su posicio
         }
     }
     return nospace;
@@ -80,25 +102,48 @@ void registerEntry(std::vector<Spot>& spots){
         return;
     }
 
+    // Tipo de vehiculo
+    std::cout<<"Ingrese el tipo de vehiculo,'C'=carro y 'M'=moto: ";
+    char type;
+    std::cin>>type;
+    std::cin.ignore();
+    type = std::toupper(type);  // volver c a C mayuscula y m a M mayuscula
+
+
     // Se le pide la placa al usuario
-    std::cout<<"ingresa la placa de esta forma ABC123: ";
+    std::cout<<"ingresa la placa de esta forma ABC123 para carros o ABC12D para motos: ";
     std::string plate;
     std::getline(std::cin,plate); //leer la placa del carro
+
+    //Convertir placas a mayusculas
+    for(int i=0; i < plate.size(); i++){
+        plate[i]=std::toupper(plate[i]);
+    }
+
+    bool valid = false;
+    if(type == 'C'){
+        valid = validateCarPlate(plate);
+    }
+    else if (type =='M') {
+        valid = validateMotoPlate(plate);
+    }
     
-    if(validatePlate(plate)){ //verifica que el formato de las placas sea el correcto ABC123
-        
-        if(findSpotByPlate(spots,plate) != -1){ //verifica que la placa no este ya en el parqueadero
+    if (valid){
+         if(findSpotByPlate(spots,plate) != -1){ //verifica que la placa no este ya en el parqueadero
             std::cout<<"Este vehiculo ya esta registrado";
             return;
         }
+
+    spots[position].type = type; //guarda el tipo de vehiculo
     spots[position].plate = plate;// guardar la plata en el spot libre
     spots[position].entryTime = std::time(NULL); // guarda la hora actual como la hora de entrada
     spots[position].occupied = true; // marca el espacio como ocupado
     std::cout<<"Vehiculo registrado\n"; // avisa al usuario
     }
+
     else{
         //si no es valida, avisar y borrar
-        std::cout << "Error al ingresar placa, el formato valido es ABC123\n";
+        std::cout << "Error al ingresar placa, el formato valido es ABC123 para carros o ABC12D para motos \n";
     }
 }
 
@@ -107,6 +152,9 @@ void registerExit(std::vector<Spot>& spots){
     std::cout<<"Ingresa la placa del vehiculo para salir: ";
     std::string plate;
     std::getline(std::cin, plate);
+    for (int i = 0; i<plate.size(); i++){
+        plate[i] = std::toupper(plate[i]);
+    }
     int position = findSpotByPlate (spots, plate);
     if(position == -1){
         std::cout<<"Vehiculo no encontrado\n";
@@ -115,10 +163,17 @@ void registerExit(std::vector<Spot>& spots){
    
     std::time_t exitTime = std::time(NULL); // obtener la hora del tiempo de salida
     int minutes = calculateMinutes(spots[position].entryTime, exitTime); // calcular tiempo
-    int fee = calculateFee(minutes); // calcular pago
-    std::cout << "\n--- RECIBO ---\n";
+    int fee = calculateFee(minutes,spots[position].type); // calcular pago
+    std::cout << "\n--- RECIBO ---\n"; //Diseño de header de recibo sacado de claude
+    std::cout << "Tipo: " << (spots[position].type == 'C' ? "Carro" : "Moto") << "\n";
     std::cout << "Placa: " << spots[position].plate << "\n";
     std::cout << "Tiempo: " << minutes << " minutos\n";
+    if(spots[position].type == 'C'){
+        std::cout<< "Tarifa: $ "<<CAR_RATE_PER_MINUTE<<"\n";
+    }
+    else{
+        std::cout<< "Tarifa: $ "<<MOTO_RATE_PER_MINUTE<<"\n";
+    }
     std::cout << "Total: $" << fee << "\n";
     initSpot(&spots[position]); // liberar espacio para el siguiente carro
     }
@@ -145,8 +200,18 @@ void showStatus(std::vector<Spot>& spots){
 //mostrar vehiculos registrados, para saber cual es el que debo sacar....
 void showVehicles(std::vector<Spot>& spots){ 
     int count = 0; //inicializo una variable local en 0
+
     for(int i = 0; i < spots.size(); i++){ //recorrer spots
         if(spots[i].occupied == true){// si ese espacio esta ocupado
+            
+            if(spots[i].type == 'C'){
+                std::cout<<"Tipo: Carro\n";
+                std::cout<< "Tarifa: $ "<<CAR_RATE_PER_MINUTE<<"\n";
+            }
+            else{
+                std::cout<<"Tipo: Moto\n";
+                std::cout<< "Tarifa: $ "<<MOTO_RATE_PER_MINUTE<<"\n";
+            }
             std::cout<<"Placa: " <<spots[i].plate<<"\n"; //imprime su placa
             std::cout<<"Fila: "<<spots[i].row<<"\n"; //imprime su fila
             std::cout<<"Columna: "<<spots[i].col<<"\n"; //imprime su columna
