@@ -1,5 +1,6 @@
 #include "menu.h"
 #include "spot.h"
+#include "map.h"
 #include <iostream>
 
 void showMenu(){
@@ -10,25 +11,30 @@ void showMenu(){
 }
 
 void startProgram(){
-    Spot spot; // se crea variable espacio
-    initSpot(&spot); // se inicializa el espacio usando su direccion en memoria
+    char map [ROW][COLUMN];
+    initMap(map);
+    std::vector<Spot> spots;
+    initSpots(spots,map);
+
     int option = 0;
     do {
+        updateMap(map, spots);
+        showMap(map);
         showMenu();
         std::cin>>option;
         std::cin.ignore();
 
         switch(option){
             case 1:
-            showStatus(&spot);
+            showStatus(spots);
             break;
 
             case 2:
-            registerEntry(&spot);
+            registerEntry(spots);
             break;
 
             case 3:
-            registerExit(&spot);
+            registerExit(spots);
             break;
 
             case 4:
