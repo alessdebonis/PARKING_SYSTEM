@@ -5,6 +5,7 @@
 #include <string> // para std::string (placa del carro)
 #include <ctime> // para std::t_time (tipo de dato) (hora de entrada), recomendado por claude
 #include <vector>
+#include <fstream>
 
 
 struct Spot {
@@ -30,5 +31,9 @@ int findFreeSpot(std::vector<Spot>& spots);
 
 // ver vehiculos que ya estan registrados
 void showVehicles(std::vector<Spot>& spots);
+
+//guardar vehiculos que han entrado y tener memoria aun se cierre la terminal
+void saveState(std::vector<Spot>& spots);
+void loadState(std::vector<Spot>& spots);
 
 #endif

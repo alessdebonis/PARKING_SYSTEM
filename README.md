@@ -67,6 +67,12 @@ Para la limpieza de pantalla se usa `std::cout << "\033[2J\033[H" << std::flush`
 
 7. **Modularidad avanzada:** El proyecto se divide en 9 archivos con responsabilidades separadas. Cada módulo (.h para declaraciones, .cpp para implementación) se encarga de una sola cosa: cobro, spots, mapa y menú.
 
+8. **Persistencia de datos:** Al salir del programa, los vehículos que están dentro del parqueadero se guardan en un archivo `estado.txt` usando `std::ofstream`. Al volver a iniciar el programa, se leen los datos guardados con `std::ifstream` y se restauran los carros en sus posiciones originales. 
+Esto permite cerrar y abrir el programa sin perder los vehículos registrados. Es como guardar y cargar una partida. Se implementaron dos funciones: `saveState` que escribe los datos al salir y `loadState` que los lee al iniciar.
+
+9. **Historial de cobros:** Cada vez que un vehículo sale del parqueadero, se guarda un registro en el archivo `historial.txt` con el tipo de vehículo, placa, tiempo de permanencia y total cobrado. Este sirve como registro contable del parqueadero. Se usa `std::ofstream` con modo `std::ios::app` para agregar al final sin borrar registros anteriores.
+
+
 ---
 
 ## Cómo compilar y ejecutar

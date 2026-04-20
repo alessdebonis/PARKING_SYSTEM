@@ -13,6 +13,7 @@ const char SPOT_TAKEN = 'X';
 const char ENTRY = 'E';
 const char EXIT_GATE = 'S';
 
+//Funciones mapp.cpp
 void initMap(char map[ROW][COLUMN]);
 void showMap(char map[ROW][COLUMN]);
 void updateMap(char map[ROW][COLUMN], std::vector<Spot>&spots);

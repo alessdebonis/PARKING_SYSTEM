@@ -12,10 +12,11 @@ void showMenu(){
 }
 
 void startProgram(){
-    char map [ROW][COLUMN];
-    initMap(map);
-    std::vector<Spot> spots;
-    initSpots(spots,map);
+    char map [ROW][COLUMN]; //variables tipo char constantes
+    initMap(map);// inicializa el mapa
+    std::vector<Spot> spots; //lista dinamica
+    initSpots(spots,map); //inicia el spot en el mapa
+    loadState(spots); // inicia la informacion del archivo 'estados.txt'
 
     int option = 0;
     do {
@@ -45,6 +46,7 @@ void startProgram(){
 
             case 5:
             std::cout<<"Saliendo...\n";
+            saveState(spots);
             break;
 
             default:
@@ -54,7 +56,6 @@ void startProgram(){
         
     std::cout << "\nPresiona Enter para continuar...";
     std::cin.ignore();
-    //std::cout << "\033[2J\033[H";  // limpiar antes de redibujar
 
     }
     

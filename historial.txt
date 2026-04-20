@@ -1,0 +1,17 @@
+
+--- RECIBO ---
+Tipo: Moto
+Placa: SDC23E
+Tiempo: 1 minutos
+
+--- RECIBO ---
+Tipo: Carro
+Placa: ASW342
+Tiempo: 2 minutos
+
+--- RECIBO ---
+Tipo: Carro
+Placa: ASD123
+Tiempo: 12 minutos
+Tarifa: $ 190
+Total: $2280

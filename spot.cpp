@@ -1,8 +1,10 @@
 #include "spot.h"
 #include "cobro.h"
+#include "map.h"
 #include <iostream>
 #include <cctype>
-#include "map.h"
+#include<fstream>
+
 
 // inicializar un espacion individual con valores vacio y libre.
 void initSpot(Spot* s){
@@ -85,7 +87,7 @@ int findSpotByPlate (std::vector<Spot>& spots, std::string plate){
     int nospace = -1;// inicio variable nospace en -1, por que en la matriz no hay indice -1/
     for(int i =0; i < spots.size(); i++){
         if(spots[i].occupied == true && spots[i].plate ==plate){ // si el espacio esta ocupado y la placa coincide
-            return i; //devuelve su posicio
+            return i; //devuelve su posicion
         }
     }
     return nospace;
@@ -143,7 +145,7 @@ void registerEntry(std::vector<Spot>& spots){
 
     else{
         //si no es valida, avisar y borrar
-        std::cout << "Error al ingresar placa, el formato valido es ABC123 para carros o ABC12D para motos \n";
+        std::cout << "Error al ingresar placa, el formato valido es ABC123\n";
     }
 }
 
@@ -175,6 +177,21 @@ void registerExit(std::vector<Spot>& spots){
         std::cout<< "Tarifa: $ "<<MOTO_RATE_PER_MINUTE<<"\n";
     }
     std::cout << "Total: $" << fee << "\n";
+
+    std::ofstream file("historial.txt", std::ios::app); // guardar en un atchivo.txt el historial de salidas
+    file << "\n--- RECIBO ---\n"; //Diseño de header de recibo sacado de claude
+    file << "Tipo: " << (spots[position].type == 'C' ? "Carro" : "Moto") << "\n";
+    file << "Placa: " << spots[position].plate << "\n";
+    file << "Tiempo: " << minutes << " minutos\n";
+    if(spots[position].type == 'C'){
+        file << "Tarifa: $ "<<CAR_RATE_PER_MINUTE<<"\n";
+    }
+    else{
+        file << "Tarifa: $ "<<MOTO_RATE_PER_MINUTE<<"\n";
+    }
+    file << "Total: $" << fee << "\n";
+    file.close();
+
     initSpot(&spots[position]); // liberar espacio para el siguiente carro
     }
 
@@ -217,9 +234,62 @@ void showVehicles(std::vector<Spot>& spots){
             std::cout<<"Columna: "<<spots[i].col<<"\n"; //imprime su columna
             count++; // sumale uno a el conteo de vehiculos registrafos
 
+            std::time_t now = std::time(NULL);// mostrar en tiempo real, cuanto tiempo lleva y cuando debe pagar el vehiculo...
+            int minutes = calculateMinutes(spots[i].entryTime, now);
+            int fee = calculateFee(minutes, spots[i].type);
+            std::cout << "Tiempo: " << minutes << " minutos\n";
+            std::cout << "Pagaria: $" << fee << "\n";
+
+
         }
     }
     if(count==0){
         std::cout<<"No hay vehiculos registrados\n";
     }
+}
+
+// guardar estado del parqueadero al salir en el archivo 'estado.txt', para cuando se ingrese tener historial
+void saveState(std::vector<Spot>& spots){
+    std::ofstream file("estado.txt"); // se abre el archivo para escribir
+    for (int i =0; i < spots.size(); i++){ // se recorre todos los spots
+        if(spots[i].occupied == true){ // si el spot esta ocupado, guardar en el archivo el spot con sus caracteristicas
+            file << spots[i].row << " ";
+            file << spots[i].col << " ";
+            file << spots[i].plate << " ";
+            file << spots[i].entryTime << " ";
+            file << spots[i].type << "\n";
+        }
+    }
+    file.close();
+}
+
+void loadState(std::vector<Spot>& spots){ // recargar el estado del parqueadero al volver a entrar
+    std::ifstream file("estado.txt"); // leer informacion del archivo 'estado.txt'
+    if (file.is_open() == false) { // si no esta abierto retorna
+        return;
+    }
+    // si si esta abierto, devuelve estos datos 
+    int row, col;
+    std::string plate;
+    std::time_t entryTime;
+    char type;
+
+    while(file>>row>>col>>plate>>entryTime>>type){ // hace que el while lea linea por linea (ayudado por claude)
+        for (int i = 0; i < spots.size(); i++){ // busca el spot que coincida
+            if(spots[i].row ==row && spots[i].col ==col){ // si la columna y la fila coinciden, restaura y trae la informacion de el spot(placa,tiempo de entrada,tipo,si esta ocupado)
+                spots[i].plate = plate;
+                spots[i].entryTime = entryTime;
+                spots[i].type = type;
+                spots[i].occupied = true;
+
+            }
+        }
+        file.close();//cierra archivo
+
+    }
+
+
+
+
+    
 }
